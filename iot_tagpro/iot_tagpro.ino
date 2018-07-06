@@ -1,5 +1,8 @@
 #include <ESP8266WiFi.h>
+#include <LiquidCrystal.h>
 
+char *ssid = "";
+char *password = "";
 
 // LEDS
 int builtinLED = LED_BUILTIN;
@@ -7,12 +10,22 @@ int relaySignalPIN = D7;
 // VALUES
 int builtinLedVAL = LOW;
 int relaySignalVAL = LOW;
+
 // SERVER
 WiFiServer server(80);
+
+// LCD screen
+const int rs = D5, en = D0;
+LiquidCrystal lcd(rs, en, D4, D3, D2, D1);
 
 void setup()
 {
     Serial.begin(115200);
+
+    // LCD SCREEN
+    lcd.begin(16, 2);
+    lcd.setCursor(0, 0);
+    lcd.print("Init...");
 
     // BUILTIN LED
     pinMode(builtinLED, OUTPUT);
@@ -26,6 +39,11 @@ void setup()
     Serial.println();
     Serial.print("Connecting to ");
     Serial.println(ssid);
+
+    lcd.setCursor(0, 1);
+    lcd.print("Wifi");
+    lcd.setCursor(5, 1);
+    lcd.print(ssid);
 
     WiFi.begin(ssid, password);
 
@@ -44,6 +62,9 @@ void setup()
     Serial.print("Use this URL : http://");
     Serial.print(WiFi.localIP());
     Serial.println("/");
+
+    lcd.clear();
+    lcd.print(WiFi.localIP());
 }
 
 void loop()
@@ -75,7 +96,6 @@ void loop()
 
 void handleRoute(WiFiClient client, String request)
 {
-
     String method = request.substring(0, request.indexOf(' '));
     String url = request.substring(request.indexOf(' ') + 1, request.lastIndexOf(' '));
     String route = url.substring(0, url.indexOf('?'));
@@ -110,11 +130,27 @@ void handleRoute(WiFiClient client, String request)
 void routeTagpro(WiFiClient client, String params[][2])
 {
     int duration = getParam(params, "duration", "2500").toInt();
-
-    blinkLED(relaySignalPIN, relaySignalVAL, duration);
+    String lcdHead = getParam(params, "lcdHead", "");
+    String lcdBody = getParam(params, "lcdBody", "");
 
     clientHeaders(client, "application/json");
     client.println("{ \"status\": \"success\" }");
+
+    if (lcdHead != "" || lcdBody != "")
+    {
+        lcd.clear();
+        lcd.print(lcdHead);
+        lcd.setCursor(0, 1);
+        lcd.print(lcdBody);
+    }
+
+    blinkLED(relaySignalPIN, relaySignalVAL, duration);
+
+    if (lcdHead != "" || lcdBody != "")
+    {
+        delay(5000 - duration);
+        lcdHomeScreen(lcd, client);
+    }
 }
 
 void routeHome(WiFiClient client)
@@ -148,9 +184,21 @@ String getParam(String params[][2], char *name, char *def)
     {
         if (params[i][0] == name)
         {
-            return params[0][1];
+            return params[i][1];
             break;
         }
     }
     return def;
+}
+
+void clearLcdLine(LiquidCrystal lcd, int nb)
+{
+    lcd.setCursor(0, nb);
+    lcd.print("                ");
+}
+
+void lcdHomeScreen(LiquidCrystal lcd, WiFiClient client)
+{
+    lcd.clear();
+    lcd.print(WiFi.localIP());
 }

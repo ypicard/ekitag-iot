@@ -1,7 +1,7 @@
 {
-    "board": "esp8266:esp8266:d1_mini_pro",
-    "configuration": "CpuFrequency=80,FlashSize=16M15M,LwIPVariant=v2mss536,Debug=Disabled,DebugLevel=None____,FlashErase=none,UploadSpeed=115200",
+    "board": "esp8266:esp8266:d1_mini",
+    "configuration": "CpuFrequency=80,FlashSize=4M3M,LwIPVariant=v2mss536,Debug=Disabled,DebugLevel=None____,FlashErase=none,UploadSpeed=115200",
     "port": "/dev/cu.SLAB_USBtoUART",
-    "sketch": "iot_tagpro.ino",
-    "output": "../build"
+    "sketch": "iot_tagpro/iot_tagpro.ino",
+    "output": "../build_iot_tagpro"
 }

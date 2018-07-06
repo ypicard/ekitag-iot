@@ -3,11 +3,13 @@
         {
             "name": "Mac",
             "includePath": [
+                "/Users/ypicard/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/cores/esp8266",
                 "/Users/Yann/Library/Arduino15/packages/esp8266/hardware/esp8266/2.4.1/cores/esp8266"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": false,
                 "path": [
+                    "/Users/ypicard/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/cores/esp8266",
                     "/Users/Yann/Library/Arduino15/packages/esp8266/hardware/esp8266/2.4.1/cores/esp8266"
                 ]
             },
