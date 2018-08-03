@@ -3,17 +3,20 @@
 
 char *ssid = "";
 char *password = "";
+
 // LEDS
 int builtinLED = LED_BUILTIN;
-int relaySignalPIN = D4;
+int relaySignalPIN = D8;
 // VALUES
 int builtinLedVAL = LOW;
 int relaySignalVAL = LOW;
+
 // SERVER
 WiFiServer server(80);
+
 // LCD screen
-const int rs = D1, en = D0, d4 = D8, d5 = D7, d6 = D6, d7 = D5;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+const int rs = D5, en = D0;
+LiquidCrystal lcd(rs, en, D4, D3, D2, D1);
 
 void setup()
 {
@@ -129,17 +132,27 @@ void handleRoute(WiFiClient client, String request)
 void routeTagpro(WiFiClient client, String params[][2])
 {
     int duration = getParam(params, "duration", "2500").toInt();
-    String lcdHead = getParam(params, "text1", "");
-    String lcdBody = getParam(params, "text2", "");
+    String lcdHead = getParam(params, "lcdHead", "");
+    String lcdBody = getParam(params, "lcdBody", "");
 
-    blinkLED(relaySignalPIN, relaySignalVAL, duration);
-    lcd.clear();
-    lcd.print(lcdHead);
-    lcd.setCursor(0, 1);
-    lcd.print(lcdBody);
-    
     clientHeaders(client, "application/json");
     client.println("{ \"status\": \"success\" }");
+
+    if (lcdHead != "" || lcdBody != "")
+    {
+        lcd.clear();
+        lcd.print(lcdHead);
+        lcd.setCursor(0, 1);
+        lcd.print(lcdBody);
+    }
+
+    blinkLED(relaySignalPIN, relaySignalVAL, duration);
+
+    if (lcdHead != "" || lcdBody != "")
+    {
+        delay(5000 - duration);
+        lcdHomeScreen(lcd, client);
+    }
 }
 
 void routeHome(WiFiClient client)
@@ -180,13 +193,14 @@ String getParam(String params[][2], char *name, char *def)
     return def;
 }
 
-void clearLcdLine(LiquidCrystal lcd, int nb) {
-  lcd.setCursor(0, nb);
-  lcd.print("                ");
+void clearLcdLine(LiquidCrystal lcd, int nb)
+{
+    lcd.setCursor(0, nb);
+    lcd.print("                ");
 }
 
-void lcdHomeScreen(LiquidCrystal lcd, WiFiClient client){
+void lcdHomeScreen(LiquidCrystal lcd, WiFiClient client)
+{
     lcd.clear();
     lcd.print(WiFi.localIP());
 }
-
